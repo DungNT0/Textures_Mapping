@@ -1,100 +1,70 @@
 import * as THREE from 'three';
 
-// const scene = new THREE.Scene();
-// const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const scene = new THREE.Scene();
 
-// const renderer = new THREE.WebGLRenderer({ antialias: true });
-// renderer.setSize(window.innerWidth, window.innerHeight);
-// document.body.appendChild(renderer.domElement);
+//1 Bump mapping and normal mapping
+const geometry1 = new THREE.BoxGeometry(1, 1, 1);
 
-// const geometry1 = new THREE.BoxGeometry(1, 1, 1);
-// const crate_texture = new THREE.TextureLoader().load('public/Diffuse_Texture.png');
-// const material1 = new THREE.MeshPhongMaterial({ map: crate_texture });
-// const cube1 = new THREE.Mesh(geometry1, crate_texture, material1);
+const crate_texture = new THREE.TextureLoader().load('public/Diffuse_Texture.png');
+const bump_map_texture = new THREE.TextureLoader().load('public/Bump_Texture.png');
+const normal_texture = new THREE.TextureLoader().load('public/Normal_Texture.png');
 
-// const geometry2 = new THREE.BoxGeometry(1, 1, 1);
-// const bump_map_texture = new THREE.TextureLoader().load('public/Bump_Texture.png');
-// const material2 = new THREE.MeshPhongMaterial({ bumpMap: bump_map_texture });
-// const cube2 = new THREE.Mesh(geometry2, bump_map_texture, material2);
+const material1 = new THREE.MeshPhongMaterial({
+    map: crate_texture,
+    bumpMap: bump_map_texture,
+    normalMap: normal_texture
+});
 
-// const geometry3 = new THREE.BoxGeometry(1, 1, 1);
-// const normal_texture = new THREE.TextureLoader().load('public/Normal_Texture.png');
-// const material3 = new THREE.MeshPhongMaterial({ normalMap: normal_texture });
-// const cube3 = new THREE.Mesh(geometry3, normal_texture, material3);
+const crate1 = new THREE.Mesh(geometry1, material1);
+scene.add(crate1);
+crate1.position.x = 0;
+crate1.position.z = 2;
 
-// scene.add(cube1);
-// cube1.position.x = -4;
+const canvasWidth = 1345, canvasHeight = 720;
+const fieldofViewY = 60, aspectRatio = canvasWidth / canvasHeight, near = 0.1, far = 100.0;
+const camera = new THREE.PerspectiveCamera(fieldofViewY, aspectRatio, near, far);
+camera.position.z = 7;
 
-// scene.add(cube2);
-// cube2.position.x = 0;
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+scene.add(ambientLight);
 
-// scene.add(cube3);
-// cube3.position.x = 4;
+const pointLight1 = new THREE.PointLight(0xffffff, 0.8, 100.0);
+pointLight1.position.set(0.1, 0.3, 3.5)
+scene.add(pointLight1);
 
-// const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
-// scene.add(ambientLight);
+//2 Displacement and specular mapping
+const geometry2 = new THREE.PlaneGeometry(20, 20, 32);
+const grass_diffuse_texture = new THREE.TextureLoader().load('public/grass_diffus_texture.png');
+const grass_normal_texture = new THREE.TextureLoader().load('public/grass_normal_texture.png');
+const grass_disp_texture = new THREE.TextureLoader().load('public/grass_displacement_texture.png');
+const grass_specular_texture = new THREE.TextureLoader().load('public/grass_specular_texture.png');
+const material2 = new THREE.MeshPhongMaterial({
+    map: grass_diffuse_texture,
+    normalMap: grass_normal_texture,
+    displacementMap: grass_disp_texture,
+    specularMap: grass_specular_texture,
+    specular: 0xffffff, shininess: 20
+});
 
-// const pointLight = new THREE.PointLight(0xffffff, 0.8, 100.0);
-// pointLight.position.set(3, 1, 3)
-// scene.add(pointLight);
+const ground = new THREE.Mesh(geometry2, material2);
+ground.position.z = 0;
+ground.position.y = 2;
+ground.position.x = Math.PI / 2 - 0.2;
+scene.add(ground);
 
-// camera.position.z = 5;
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(canvasWidth, canvasHeight);
+document.body.appendChild(renderer.domElement);
 
-// function animate() {
-//     requestAnimationFrame(animate);
-//     cube1.rotation.x += 0.01;
-//     cube1.rotation.y += 0.01;
+function animate() {
+    requestAnimationFrame(animate);
 
-//     cube2.rotation.x += 0.01;
-//     cube2.rotation.y += 0.01;
+    crate1.rotation.x += 0.01;
+    crate1.rotation.y += 0.01;
 
-//     cube3.rotation.x += 0.01;
-//     cube3.rotation.y += 0.01;
+    ground.rotation.x += 0.01;
+    ground.rotation.y += 0.01;
 
-//     renderer.render(scene, camera);
-// }
-// animate();
-
-//----------------------
-
-var create_crate = function () {
-    var geometry = new THREE.BoxGeometry(1, 1, 1);
-    var crate_texture = new THREE.TextureLoader().load('public/Diffuse_Texture.png');
-    var bump_map_texture = new THREE.TextureLoader().load('public/Bump_Texture.png');
-    var normal_texture = new THREE.TextureLoader().load('public/Normal_Texture.png');
-    var material = new THREE.MeshPhongMaterial({
-        map: crate_texture, 
-        bumpMap: bump_map_texture,
-        normalMap: normal_texture
-    });
-    crate = new THREE.Mesh(geometry, material);
-    scene.add(crate);
-};
-
-var init_app = function () {
-    //1. Create the scene
-    scene = new THREE.Scene();
-    //2. Create and locate the camera
-    var canvasWidth = 1280, canvasHeight = 720;
-    var fieldofViewY = 60, aspectRatio = canvasWidth / canvasHeight, near = 0.1, far = 100.0;
-    camera = new THREE.PerspectiveCamera(fieldofViewY, aspectRatio, near, far);
-    camera.position.z = 5;
-
-    var ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
-    scene.add(ambientLight);
-
-    var pointLight = new THREE.PointLight(0xffffff, 0.8, 100.0);
-    pointLight.position.set(3, 1, 3)
-    scene.add(pointLight);
-
-    //objects
-    //create_ground();
-    create_crate();
-    //create_skybox();
-    //create_envSphere();
-    //3. Create the renderer
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(canvasWidth, canvasHeight);
-    document.body.appendChild(renderer.domElement);
-
-};
+    renderer.render(scene, camera);
+}
+animate();
